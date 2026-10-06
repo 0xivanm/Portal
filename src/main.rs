@@ -73,6 +73,48 @@ fn piezo_stop() {
     }
 }
 
+
+const USEC_TIMER: *const u32 = 0x6000_5010 as *const u32;
+
+const SINE: [u8; 8] = [128, 196, 224, 196, 128, 60, 32, 60];
+const AUDIO: &[u8] = include_bytes!("../assets/bad_apple.raw");
+
+fn micros() -> u32 {
+    unsafe { core::ptr::read_volatile(USEC_TIMER) }
+}
+
+fn wait_until(deadline: u32) {
+    while (micros().wrapping_sub(deadline) as i32) < 0 {
+        core::hint::spin_loop();
+    }
+}
+
+fn delay_ms(ms: u32) {
+    let deadline = micros().wrapping_add(ms * 1000);
+    wait_until(deadline);
+}
+
+fn piezo_write_sample(sample: u8) {
+    const DIVIDER: u32 = 0;
+
+    let control = 0x80000000 | (sample as u32) << 16 | DIVIDER;
+    unsafe {
+        core::ptr::write_volatile(PWM0_CTRL, control);
+    }
+}
+
+fn play_sample_test() {
+    let mut deadline = micros();
+    for &sample in AUDIO {
+        piezo_write_sample(sample);
+
+        deadline = deadline.wrapping_add(125);
+        wait_until(deadline);
+    }
+
+    piezo_stop();
+}
+
 #[panic_handler]
 fn panic(_info: &core::panic::PanicInfo) -> ! {
     loop {}
@@ -84,12 +126,8 @@ pub extern "C" fn rust_main() -> ! {
 
     loop {
         backlight_on();
-
-        piezo_play(40, 0x80);
-        delay(5_000_000);
-        piezo_stop();
-
+        play_sample_test();
         backlight_off();
-        delay(5_000_000);
+        delay(130000);
     }
 }

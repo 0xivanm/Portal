@@ -4,3 +4,4 @@ ipod_boot.img
 upload.sh
 build.sh
 linux.bin
+/archive
