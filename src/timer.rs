@@ -5,7 +5,6 @@ pub fn micros() -> u32 {
     unsafe { USEC_TIMER.read() }
 }
 
-// a deadline less than 2^31 microseconds in the past returns immediately
 pub fn wait_until(deadline: u32) {
     while (micros().wrapping_sub(deadline) as i32) < 0 {
         core::hint::spin_loop();
