@@ -7,22 +7,6 @@
 .equ COPSLEEP, 0x80000000
 .equ PROC_ID, 0x60000000
 
-.macro SET_BL state
-    .if \state
-        ldr r1, =0x8080
-    .else
-        ldr r1, =0x8000
-    .endif
-    str r1, [r0]
-.endm
-
-.macro DELAY count
-    ldr r2, =\count
-1:
-    subs r2, r2, #1
-    bne 1b
-.endm
-
 _start:
     @ disable interrupts and enter system mode
     msr cpsr_c, #0xdf
@@ -78,15 +62,3 @@ cpu:
 
 hang:
     b hang
-
-@ _start:
-@     ldr r0, =0x6000d92c
-
-@ loop:
-@     SET_BL 1
-@     DELAY 1000000
-
-@     SET_BL 0
-@     DELAY 1000000
-
-@     b loop
