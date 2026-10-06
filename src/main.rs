@@ -4,7 +4,9 @@
 use core::arch::global_asm;
 
 mod backlight;
+mod framebuffer;
 mod gpio;
+mod lcd;
 mod piezo;
 mod registers;
 mod timer;
@@ -12,6 +14,7 @@ mod timer;
 global_asm!(include_str!("../main.s"));
 
 const AUDIO: &[u8] = include_bytes!("../assets/bad_apple.raw");
+const IMAGE: &[u8] = include_bytes!("../assets/image.raw");
 
 #[panic_handler]
 fn panic(_info: &core::panic::PanicInfo) -> ! {
@@ -23,6 +26,12 @@ fn panic(_info: &core::panic::PanicInfo) -> ! {
 #[unsafe(no_mangle)]
 pub extern "C" fn rust_main() -> ! {
     piezo::init();
+    let mut lcd = lcd::init();
+    framebuffer::clear_framebuffer();
+    framebuffer::fill_framebuffer(IMAGE);
+    unsafe {
+        lcd.update(&*framebuffer::FRAMEBUFFER.0.get());
+    }
 
     loop {
         backlight::on();

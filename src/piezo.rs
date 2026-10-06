@@ -16,7 +16,7 @@ pub fn init() {
 /// unsigned PCM sample, 128 is the waveform midpoint
 #[inline(always)]
 pub fn write_sample(sample: u8) {
-    // rockbox form: bits 23:16; inferred duty = sample / 256.
+    // rockbox form: bits 23:16, duty = sample / 256.
     let control = PWM_ENABLE | (u32::from(sample) << 16) | PCM_DIVIDER;
     unsafe { PWM0_CTRL.write(control) }
 }

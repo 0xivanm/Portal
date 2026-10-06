@@ -37,3 +37,13 @@ pub const PWM0_CTRL: Register32 = Register32::new(0x7000_A000);
 pub const USEC_TIMER: Register32 = Register32::new(0x6000_5010);
 
 pub const GPIOL_OUTPUT_VAL: Register32 = Register32::new(0x6000_D12C);
+
+pub const GPIOC_ENABLE: Register32 = Register32::new(0x6000_D008);
+pub const GPIOC_OUTPUT_EN: Register32 = Register32::new(0x6000_D018);
+pub const GPO32_ENABLE: Register32 = Register32::new(0x7000_0084);
+
+pub const BCM_DATA32: Register32 = Register32::new(0x3000_0000);
+pub const BCM_WR_ADDR32: Register32 = Register32::new(0x3001_0000);
+pub const BCM_RD_ADDR32: Register32 = Register32::new(0x3002_0000);
+// BCM control accesses are 16-bit.
+pub const BCM_CONTROL: *mut u16 = 0x3003_0000 as *mut u16;
