@@ -62,7 +62,7 @@ impl Lcd {
         if width == LCD_WIDTH {
             bcm_write_addr(bcmaddr);
             lcd_write_data(&fb[offset..offset + width * height]);
-        } 
+        }
         else {
             for _ in 0..height {
                 bcm_write_addr(bcmaddr);
@@ -121,9 +121,40 @@ fn bcm_read32(address: u32) -> u32 {
     }
 }
 
-fn lcd_write_data(pixels: &[u16]) {
-    for pair in pixels.chunks_exact(2) {
-        let value = u32::from(pair[0]) | (u32::from(pair[1]) << 16);
-        unsafe { BCM_DATA32.write(value) };
+pub fn prepare_transfer() {
+    loop {
+        let command = bcm_read32(BCMA_COMMAND);
+        if command != BCMCMD_LCD_UPDATE && command != 0xFFFF {
+            break;
+        }
+        core::hint::spin_loop();
     }
+    bcm_write_addr(BCMA_CMDPARAM);
+}
+
+// Generate identical Rust bodies, differing only in code placement.
+macro_rules! rust_transfer {
+    ($name:ident, $section:literal) => {
+        #[unsafe(link_section = $section)]
+        #[inline(never)]
+        pub fn $name(pixels: &[u16]) {
+            for pair in pixels.chunks_exact(2) {
+                let value = u32::from(pair[0]) | (u32::from(pair[1]) << 16);
+                unsafe { BCM_DATA32.write(value) };
+            }
+        }
+    };
+}
+
+rust_transfer!(lcd_write_data, ".text.lcd_transfer");
+rust_transfer!(lcd_write_data_iram, ".icode.rust");
+
+unsafe extern "C" {
+    fn lcd_write_data_asm_raw(pixels: *const u16, count: usize);
+}
+
+pub fn lcd_write_data_asm(pixels: &[u16]) {
+    assert_eq!(pixels.as_ptr() as usize & 3, 0);
+    assert_eq!(pixels.len() & 1, 0);
+    unsafe { lcd_write_data_asm_raw(pixels.as_ptr(), pixels.len()) };
 }

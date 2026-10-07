@@ -58,6 +58,16 @@ cpu:
 
     ldr sp, =_stackend
 
+    @ copy IRAM code after leaving the bootloader and sleeping the COP
+    ldr r0, =_iramcopy
+    ldr r1, =_iramstart
+    ldr r2, =_iramend
+1:
+    cmp r1, r2
+    ldrlo r3, [r0], #4
+    strlo r3, [r1], #4
+    blo 1b
+
     bl rust_main
 
 hang:

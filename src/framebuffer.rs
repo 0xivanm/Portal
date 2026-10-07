@@ -5,6 +5,7 @@ use crate::lcd::{LCD_HEIGHT, LCD_WIDTH};
 pub const FB_WIDTH: usize = LCD_WIDTH;
 pub const FB_HEIGHT: usize = LCD_HEIGHT;
 
+#[repr(align(4))]
 pub struct Framebuffer(pub UnsafeCell<[u16; FB_WIDTH * FB_HEIGHT]>);
 
 // Drawing and transfer run on one core with interrupts disabled.

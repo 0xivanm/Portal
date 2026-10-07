@@ -1,28 +1,41 @@
 ENTRY(_start)
 
+MEMORY
+{
+    DRAM : ORIGIN = 0x10000000, LENGTH = 32M
+    IRAM : ORIGIN = 0x40000000, LENGTH = 48K
+}
 
 SECTIONS
 {
-    . = 0x10000000;
-
     .text : {
         KEEP(*(.text.init))
         *(.text*)
-    }
+    } > DRAM
 
     .ARM.exidx : {
         *(.ARM.exidx*)
-    }
+    } > DRAM
 
     .rodata : {
         *(.rodata*)
-    }
+    } > DRAM
 
     .data : {
         *(.data*)
-    }
+        . = ALIGN(4);
+    } > DRAM
 
-    .bss (NOLOAD) : {
+    /* Stored in the DRAM image, copied to its execution address at startup. */
+    .iram : {
+        _iramstart = .;
+        KEEP(*(.icode*))
+        . = ALIGN(4);
+        _iramend = .;
+    } > IRAM AT> DRAM
+    _iramcopy = LOADADDR(.iram);
+
+    .bss (_iramcopy + SIZEOF(.iram)) (NOLOAD) : {
         /* zeroing will write 4 byte words */
         . = ALIGN(4);
         _bssbegin = .;
@@ -30,12 +43,12 @@ SECTIONS
         *(COMMON)
         . = ALIGN(4);
         _bssend = .;
-    }
+    } > DRAM
 
     .stack (NOLOAD) : {
         . = ALIGN(8);
         _stackbegin = .;
         . += 0x2000;
         _stackend = .;
-    }
+    } > DRAM
 }
