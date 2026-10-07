@@ -1,5 +1,4 @@
-use core::sync::atomic::{Ordering, compiler_fence};
-
+use core::arch::asm;
 use crate::lcd::{LCD_HEIGHT, LCD_WIDTH};
 use crate::timer;
 
@@ -17,10 +16,10 @@ pub fn compare<T: ?Sized, const N: usize>(input: &T, rounds: u32, mut prepare: i
             let index = (round as usize + offset) % N;
             prepare();
 
-            compiler_fence(Ordering::SeqCst);
+            unsafe { asm!("", options(nostack, preserves_flags)) }
             let start = timer::micros();
             tests[index](core::hint::black_box(input));
-            compiler_fence(Ordering::SeqCst);
+            unsafe { asm!("", options(nostack, preserves_flags)) }
             let elapsed = timer::micros().wrapping_sub(start);
 
             totals[index] += u64::from(elapsed);
