@@ -31,18 +31,6 @@ pub extern "C" fn rust_main() -> ! {
         let fb = &mut *framebuffer::FRAMEBUFFER.0.get();
         fb.fill(0xFFFF);
 
-        let times = benchmark::compare(
-            &fb[..],
-            12,
-            lcd::prepare_transfer,
-            [
-                lcd::lcd_write_data,
-                lcd::lcd_write_data_iram,
-                lcd::lcd_write_data_asm,
-            ],
-        );
-
-        benchmark::draw_bars(fb, times);
         lcd.update(fb);
     }
 
