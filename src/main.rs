@@ -1,10 +1,10 @@
 #![no_std]
 #![no_main]
 
-mod benchmark;
 mod drivers;
 mod graphics;
 mod platform;
+mod debug;
 
 use crate::drivers::{backlight, lcd};
 use crate::graphics::framebuffer;

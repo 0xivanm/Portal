@@ -1,2 +1,2 @@
-mod benchmark;
-mod debug;
+pub mod benchmark;
+pub mod debug;
