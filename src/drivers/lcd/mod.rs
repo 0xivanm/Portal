@@ -1,6 +1,7 @@
 use core::arch::global_asm;
 use core::ptr::{read_volatile, write_volatile};
 
+use crate::platform::display::{LCD_HEIGHT, LCD_WIDTH};
 use crate::platform::gpio::gpio_clear;
 use crate::platform::registers::{
     BCM_CONTROL, BCM_DATA32, BCM_RD_ADDR32, BCM_WR_ADDR32, GPIOC_ENABLE, GPIOC_OUTPUT_EN,
@@ -8,9 +9,6 @@ use crate::platform::registers::{
 };
 
 global_asm!(include_str!("transfer.s"), options(raw));
-
-pub const LCD_WIDTH: usize = 320;
-pub const LCD_HEIGHT: usize = 240;
 
 const BCMA_COMMAND: u32 = 0x1F8;
 const BCMA_CMDPARAM: u32 = 0xE0000;
@@ -40,6 +38,15 @@ pub fn init() -> Lcd {
 }
 
 impl Lcd {
+    // Full-screen RGB565 little-endian bytes, with a four-byte-aligned source
+    pub fn draw_direct(&mut self, image: &[u8]) {
+        assert_eq!(image.len(), LCD_WIDTH * LCD_HEIGHT * 2);
+        assert_eq!(image.as_ptr() as usize & 3, 0);
+
+        bcm_write_addr(BCMA_CMDPARAM);
+        unsafe { lcd_write_data_asm_raw(image.as_ptr().cast::<u16>(), image.len() / 2) };
+        self.request_update();
+    }
     pub fn update(&mut self, fb: &[u16; LCD_WIDTH * LCD_HEIGHT]) {
         self.update_rect(0, 0, LCD_WIDTH, LCD_HEIGHT, fb);
     }

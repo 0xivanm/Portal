@@ -1,4 +1,4 @@
-use crate::drivers::lcd::{LCD_HEIGHT, LCD_WIDTH};
+use crate::platform::display::{LCD_HEIGHT, LCD_WIDTH};
 
 const FONT_WIDTH: usize = 5;
 const FONT_HEIGHT: usize = 7;

@@ -1,7 +1,7 @@
 use core::arch::global_asm;
 use core::cell::UnsafeCell;
 
-use crate::drivers::lcd::{LCD_HEIGHT, LCD_WIDTH};
+use crate::platform::display::{LCD_HEIGHT, LCD_WIDTH};
 
 global_asm!(include_str!("copy.s"), options(raw));
 

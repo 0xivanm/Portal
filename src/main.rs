@@ -7,11 +7,11 @@ mod platform;
 mod debug;
 
 use crate::drivers::{backlight, lcd};
-use crate::graphics::framebuffer;
 use crate::platform::{clock, timer};
+use crate::platform::display::{LCD_HEIGHT, LCD_WIDTH};
 
 const FPS: u32 = 18;
-const FRAME_BYTES: usize = framebuffer::FB_WIDTH * framebuffer::FB_HEIGHT * 2;
+const FRAME_BYTES: usize = LCD_WIDTH * LCD_HEIGHT * 2;
 
 #[repr(align(4))]
 struct Video([u8; include_bytes!("../assets/video.raw").len()]);
@@ -29,7 +29,6 @@ fn panic(_info: &core::panic::PanicInfo) -> ! {
 pub extern "C" fn rust_main() -> ! {
     clock::set_frequency(clock::CpuFrequency::Mhz30);
     let mut lcd = lcd::init();
-    let framebuffer = unsafe { framebuffer::take() };
     backlight::on();
 
     assert!(!VIDEO.0.is_empty());
@@ -38,10 +37,9 @@ pub extern "C" fn rust_main() -> ! {
     loop {
         let mut deadline = timer::micros();
         for frame in VIDEO.0.chunks_exact(FRAME_BYTES) {
-            framebuffer.fill(frame);
-            lcd.update(framebuffer.pixels());
+            lcd.draw_direct(frame);
 
-            // Copying and transfer count toward the frame interval.
+            // Transfer counts toward the frame interval.
             deadline = deadline.wrapping_add(1_000_000 / FPS);
             timer::wait_until(deadline);
         }
