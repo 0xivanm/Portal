@@ -27,7 +27,7 @@ fn panic(_info: &core::panic::PanicInfo) -> ! {
 
 #[unsafe(no_mangle)]
 pub extern "C" fn rust_main() -> ! {
-    clock::set_30mhz();
+    clock::set_frequency(clock::CpuFrequency::Mhz30);
     let mut lcd = lcd::init();
     let framebuffer = unsafe { framebuffer::take() };
     backlight::on();
