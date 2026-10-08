@@ -13,7 +13,7 @@ fi
 
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
 firmware=target/armv4t-none-eabi/release/linux.bin
-cargo +nightly-2026-10-07 -Z build-std=core build --release --target armv4t-none-eabi --target-dir target
+cargo +nightly -Z build-std=core build --release --target armv4t-none-eabi --target-dir target
 arm-none-eabi-objcopy -O binary target/armv4t-none-eabi/release/ipod "$firmware"
 
 size=$(wc -c < "$firmware")

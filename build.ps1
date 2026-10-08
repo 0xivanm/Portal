@@ -6,7 +6,7 @@ $firmware = "target/$target/release/linux.bin"
 
 Push-Location $PSScriptRoot
 try {
-    cargo +nightly-2026-10-07 build -Z build-std=core --release --target $target --target-dir target
+    cargo +nightly build -Z build-std=core --release --target $target --target-dir target
     if ($LASTEXITCODE -ne 0) { throw 'Build failed.' }
 
     arm-none-eabi-objcopy -O binary "target/$target/release/ipod" $firmware
