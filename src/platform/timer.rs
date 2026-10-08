@@ -1,4 +1,4 @@
-use crate::registers::USEC_TIMER;
+use crate::platform::registers::USEC_TIMER;
 
 #[inline(always)]
 pub fn micros() -> u32 {

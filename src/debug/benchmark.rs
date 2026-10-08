@@ -1,5 +1,5 @@
-use crate::lcd::{LCD_HEIGHT, LCD_WIDTH};
-use crate::timer;
+use crate::drivers::lcd::{LCD_HEIGHT, LCD_WIDTH};
+use crate::platform::timer;
 use core::arch::asm;
 
 pub fn compare<T: ?Sized, const N: usize>(
@@ -7,6 +7,7 @@ pub fn compare<T: ?Sized, const N: usize>(
     rounds: u32,
     mut prepare: impl FnMut(),
     tests: [fn(&T); N],
+    mut verify: impl FnMut(&T),
 ) -> [u32; N] {
     assert!(rounds != 0 && N != 0);
     let mut totals = [0u64; N];
@@ -14,6 +15,7 @@ pub fn compare<T: ?Sized, const N: usize>(
     for test in tests {
         prepare();
         test(core::hint::black_box(input));
+        verify(input);
     }
 
     for round in 0..rounds {
@@ -27,6 +29,7 @@ pub fn compare<T: ?Sized, const N: usize>(
             unsafe { asm!("", options(nostack, preserves_flags)) }
             let elapsed = timer::micros().wrapping_sub(start);
 
+            verify(input);
             totals[index] += u64::from(elapsed);
         }
     }
@@ -34,11 +37,7 @@ pub fn compare<T: ?Sized, const N: usize>(
     totals.map(|total| (total / u64::from(rounds)) as u32)
 }
 
-pub fn draw_bars<const N: usize>(
-    fb: &mut [u16; LCD_WIDTH * LCD_HEIGHT],
-    times: [u32; N],
-    colors: [u16; N],
-) {
+pub fn draw_bars<const N: usize>(fb: &mut [u16; LCD_WIDTH * LCD_HEIGHT], times: [u32; N], colors: [u16; N]) {
     assert!(N != 0 && N <= LCD_HEIGHT - 48);
     fb.fill(0);
 

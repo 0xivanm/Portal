@@ -1,5 +1,5 @@
-use crate::registers::{DEV_EN, DEV_INIT1, PWM0_CTRL};
-use crate::{timer};
+use crate::platform::registers::{DEV_EN, DEV_INIT1, PWM0_CTRL};
+use crate::platform::timer;
 
 const DEV_PWM: u32 = 0x0002_0000;
 const PWM_ENABLE: u32 = 0x8000_0000;

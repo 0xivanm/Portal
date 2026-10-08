@@ -47,3 +47,11 @@ pub const BCM_WR_ADDR32: Register32 = Register32::new(0x3001_0000);
 pub const BCM_RD_ADDR32: Register32 = Register32::new(0x3002_0000);
 // BCM control accesses are 16-bit.
 pub const BCM_CONTROL: *mut u16 = 0x3003_0000 as *mut u16;
+
+pub const CLOCK_SOURCE: Register32 = Register32::new(0x6000_6020);
+pub const PLL_CONTROL: Register32 = Register32::new(0x6000_6034);
+pub const PLL_STATUS: Register32 = Register32::new(0x6000_603C);
+
+pub const CPU_CTRL: Register32 = Register32::new(0x6000_7000);
+pub const DEV_INIT2: Register32 = Register32::new(0x7000_0020);
+pub const DEV_TIMING1: Register32 = Register32::new(0x7000_0034);

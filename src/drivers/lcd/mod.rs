@@ -1,10 +1,13 @@
+use core::arch::global_asm;
 use core::ptr::{read_volatile, write_volatile};
 
-use crate::gpio::gpio_clear;
-use crate::registers::{
+use crate::platform::gpio::gpio_clear;
+use crate::platform::registers::{
     BCM_CONTROL, BCM_DATA32, BCM_RD_ADDR32, BCM_WR_ADDR32, GPIOC_ENABLE, GPIOC_OUTPUT_EN,
     GPO32_ENABLE,
 };
+
+global_asm!(include_str!("transfer.s"), options(raw));
 
 pub const LCD_WIDTH: usize = 320;
 pub const LCD_HEIGHT: usize = 240;
